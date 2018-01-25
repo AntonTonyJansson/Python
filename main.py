@@ -1,6 +1,7 @@
 import numpy as np
 sddsadas
 lite fixes...
+min branch niklas
 # CONSTANTS
 SAMPLE_RADIUS = 0.08
 SAMPLE_START = 0
