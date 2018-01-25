@@ -25,3 +25,4 @@ name = "SampleCoordinates.txt"
 read_coordinate_file(name)
 
 a = np.pi
+kod
