@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.sparse import csr_matrix
+from matplotlib.collections import LineCollection
 
 # CONSTANTS
 SAMPLE_RADIUS = 0.08
@@ -32,8 +33,14 @@ def read_coordinate_file(filename):
     return coord_xy
 
 
-def plot_points(coord_name):
+def plot_points(coord_name, connections):
     plt.plot(coord_name[0, :], coord_name[1, :], 'or')
+    a = np.array((connections[0, :]))
+    b = np.array((connections[1, :]))
+    print(np.column_stack((a, b)))
+    line_segments = LineCollection((np.column_stack((a, b))))
+    print(line_segments)
+
 
 
 def distance(x0, x1, y0, y1):
@@ -55,16 +62,20 @@ def construct_graph_connections(coord_list, radius):
                 points = np.append(points, [i, z])
                 #print("Print points: ", points)
                 real_dist = np.append(real_dist, dist)
-
-    points = points.reshape(2, int(len(points)/2))
+    #print(points)
+    points = points.reshape(int(len(points)/2), 2)      #Var försiktig med reshape!!!
+    points = points.transpose()
     #print("hallå eller",points)
     real_dist = real_dist.reshape(1, int(len(real_dist)))
     #print(real_dist)
     return points, real_dist
 
 
-def construct_graph(indices, distances, N):
-    matrix = csr_matrix((distances[0, :], (indices[0, :], indices[1, :])), shape=(6, 7))
+def construct_graph(indices, distances):
+    M = int(np.max(indices[0, :])+1)
+    N = int(np.max(indices[1, :])+1)
+    #print(N, M)
+    matrix = csr_matrix((distances[0, :], (indices[0, :], indices[1, :])), shape=(M, N))
     return matrix
 
 
@@ -75,14 +86,16 @@ coord = read_coordinate_file(name)
 
 #print(coord)
 
-plot_points(coord)
+#plot_points(coord)
 #plt.show()
 
 points, dist = construct_graph_connections(coord, SAMPLE_RADIUS)
-print(len(dist[0, :]))
-print((dist[0, :]))
-print(len(points[0, :]))
-print(len(points[1, :]))
-print(points)
-csr = construct_graph(points, dist, 7)
-print(csr)
+#print(len(dist[0, :]))
+#print((dist[0, :]))
+#print(len(points[0, :]))
+#print(len(points[1, :]))
+#print(points)
+csr = construct_graph(points, dist)
+print(type(points))
+
+plot_points(coord, points)
