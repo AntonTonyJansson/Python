@@ -16,9 +16,14 @@ GERMANY_END = 10584
 
 def read_coordinate_file(filename):
     file = open(filename, "r")
+    x = np.empty()
+    y = np.empty()
+    print(x)
     for line in file:
-        list = line.rstrip().strip("{").strip("}")
-        print(list.split(", "))
+        lista = line.rstrip().strip("{").strip("}")
+        coord_ab = lista.split(", ")
+        #x = coord_ab(1)
+        #y = coord_ab(0)
 
 
 name = "SampleCoordinates.txt"
