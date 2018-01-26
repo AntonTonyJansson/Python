@@ -1,7 +1,5 @@
 import numpy as np
-sddsadas
-lite fixes...
-min branch niklas
+
 # CONSTANTS
 SAMPLE_RADIUS = 0.08
 SAMPLE_START = 0
@@ -18,8 +16,14 @@ GERMANY_END = 10584
 
 def read_coordinate_file(filename):
     file = open(filename, "r")
+    x = np.empty()
+    y = np.empty()
+    print(x)
     for line in file:
-        print(line.rstrip())
+        lista = line.rstrip().strip("{").strip("}")
+        coord_ab = lista.split(", ")
+        #x = coord_ab(1)
+        #y = coord_ab(0)
 
 
 name = "SampleCoordinates.txt"
@@ -27,4 +31,4 @@ name = "SampleCoordinates.txt"
 read_coordinate_file(name)
 
 a = np.pi
-kod
+
