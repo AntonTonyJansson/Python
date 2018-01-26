@@ -1,6 +1,7 @@
 #Imports
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.sparse import csr_matrix
 
 # CONSTANTS
 SAMPLE_RADIUS = 0.08
@@ -55,15 +56,17 @@ def construct_graph_connections(coord_list, radius):
                 #print("Print points: ", points)
                 real_dist = np.append(real_dist, dist)
 
-    points = points.reshape(int(len(points)/2), 2)
+    points = points.reshape(2, int(len(points)/2))
     #print("hallå eller",points)
-    real_dist = real_dist.reshape(len(real_dist),1)
+    real_dist = real_dist.reshape(1, int(len(real_dist)))
     #print(real_dist)
     return points, real_dist
 
 
 def construct_graph(indices, distances, N):
-    stuff
+    matrix = csr_matrix((distances[0, :], (indices[0, :], indices[1, :])), shape=(6, 7))
+    return matrix
+
 
 name = "SampleCoordinates.txt"
 
@@ -76,4 +79,10 @@ plot_points(coord)
 #plt.show()
 
 points, dist = construct_graph_connections(coord, SAMPLE_RADIUS)
-
+print(len(dist[0, :]))
+print((dist[0, :]))
+print(len(points[0, :]))
+print(len(points[1, :]))
+print(points)
+csr = construct_graph(points, dist, 7)
+print(csr)
