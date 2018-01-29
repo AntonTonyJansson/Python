@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.sparse import csr_matrix
+from scipy.sparse.csgraph import dijkstra
 from matplotlib.collections import LineCollection
 
 # CONSTANTS
@@ -19,6 +20,11 @@ GERMANY_END = 10584
 
 
 # Uppgift 1.
+
+np.set_printoptions(precision=4)
+
+def symmetrize(a):
+    return a + a.T -np.diag(a.diagonal())
 
 
 def read_coordinate_file(filename):
@@ -38,33 +44,47 @@ def read_coordinate_file(filename):
 
 # Uppgift 2. och 5.
 
+def plot_points2(coord_list, path):
+    lines = []
+    line = []
+    for i in range(len(path) - 1):
+        x0 = coord_list[0, int(path[i])]
+        y0 = coord_list[1, int(path[i])]
+        line.append((x0, y0))
+        x1 = coord_list[0, int(path[i + 1])]
+        y1 = coord_list[1, int(path[i + 1])]
+        line.append((x1, y1))
+        lines.append(line)
+        line = []
+    line_segments = LineCollection(lines, linewidths=5, colors='r')
+    fig = plt.figure(1)
+    ax = fig.gca()
+    ax.add_collection(line_segments)
 
-def plot_points2(coord_name):
-    plt.plot(coord_name[0, :], coord_name[1, :], 'or')
 
-
-def plot_points(coord_name, connections):   # Ändra till coord_list istället för coord_name?
-    # plt.plot(coord_name[0, :], coord_name[1, :], 'or')
-    # a = np.array((connections[0, :]))
-    # b = np.array((connections[1, :]))
-    # print(np.column_stack((a, b)))
-    # line_segments = LineCollection((np.column_stack((a, b))))
-    # print(line_segments)
+def plot_points(coord_list, connections, path):   # Ändra till coord_list istället för coord_name?
+    plt.plot(coord_list[0, :], coord_list[1, :], 'or', markersize=2)
     lines = []
     line = []
     a = np.array((connections[0, :]))
     b = np.array((connections[1, :]))
     soize = np.size(a)
     for i in np.arange(soize):
-        x0 = coord_name[0, int(a[i])]
-        y0 = coord_name[1, int(a[i])]
+        x0 = coord_list[0, int(a[i])]
+        y0 = coord_list[1, int(a[i])]
         line.append((x0, y0))
-        x1 = coord_name[0, int(b[i])]
-        y1 = coord_name[1, int(b[i])]
+        x1 = coord_list[0, int(b[i])]
+        y1 = coord_list[1, int(b[i])]
         line.append((x1, y1))
         lines.append(line)
         line = []
-    return lines
+    line_segments = LineCollection(lines)
+    fig = plt.figure(1)
+    ax = fig.gca()
+    ax.add_collection(line_segments)
+    plot_points2(coord_list, path)
+
+
 
 
 # Uppgift 3.
@@ -106,35 +126,45 @@ def construct_graph(indices, distances):
     M = int(np.max(indices[0, :]) + 1)
     N = int(np.max(indices[1, :]) + 1)
     # print(N, M)
-    matrix = csr_matrix((distances[0, :], (indices[0, :], indices[1, :])), shape=(M, N))
+    matrix = csr_matrix((distances[0, :], (indices[0, :], indices[1, :])), shape=(N, N))
     return matrix
 
 
-name = "SampleCoordinates.txt"
+def shortest_path(graph, start, end):
+    pre_list = []
+    shortest, pre_all = dijkstra(graph, directed=False, indices=[start, end], return_predecessors=True)
+    print(pre_all)
+    i = end
+    pre_list.append(end)
+    while pre_all[0, i] != start:
+        i = pre_all[0, i]
+        pre_list.append(i)
+
+    pre_list.append(start)
+    pre_list.reverse()
+    return shortest, pre_list
+
+
+# CITY
+name = "GermanyCities.txt"
+radius = GERMANY_RADIUS
+start = GERMANY_START
+end = GERMANY_END
+
 
 coord = read_coordinate_file(name)
-# print(coord[0,:])
 
-# print(coord)
+points, dist = construct_graph_connections(coord, radius)
 
-plot_points2(coord)
-
-points, dist = construct_graph_connections(coord, SAMPLE_RADIUS)
-# print(len(dist[0, :]))
-# print((dist[0, :]))
-# print(len(points[0, :]))
-# print(len(points[1, :]))
-# print(points)
+#print(dist)
 csr = construct_graph(points, dist)
-print(type(points))
-print(csr.toarray())
 
-print(coord)
-lines = plot_points(coord, points)
-print(lines)
-line_segments = LineCollection(lines)
-fig = plt.figure(1)
-ax = fig.gca()
-ax.add_collection(line_segments)
 
+
+#print(csr)
+dist_matrix, predecesor = shortest_path(csr, start, end)
+print(dist_matrix[0, end])
+print(predecesor)
+plot_points(coord, points, predecesor)
+#plot_points2(coord, points, predecesor)
 plt.show()
