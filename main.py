@@ -1,4 +1,4 @@
-#Imports
+# Imports
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.sparse import csr_matrix
@@ -18,63 +18,94 @@ GERMANY_START = 1573
 GERMANY_END = 10584
 
 
+# Uppgift 1.
+
+
 def read_coordinate_file(filename):
     file = open(filename, "r")
     x = []
     y = []
-    for line in file:           #Kan man använda np.arrays att spara värdena i istället för en list?
+    for line in file:  # Kan man använda np.arrays att spara värdena i istället för en list?
         lista = line.rstrip().strip("{").strip("}")
         coord_ab = lista.split(", ")
-        x.append(float(coord_ab[1])*np.pi/180)
-        y.append(float(np.log(np.tan((np.pi/4) + (np.pi*float(coord_ab[0]))/360))))
-        #print("x/b column", x)
-        #print("y/a column", y)
+        x.append(float(coord_ab[1]) * np.pi / 180)
+        y.append(float(np.log(np.tan((np.pi / 4) + (np.pi * float(coord_ab[0])) / 360))))
+        # print("x/b column", x)
+        # print("y/a column", y)
     coord_xy = np.array([x, y])
     return coord_xy
 
 
-def plot_points(coord_name, connections):
+# Uppgift 2. och 5.
+
+
+def plot_points2(coord_name):
     plt.plot(coord_name[0, :], coord_name[1, :], 'or')
+
+
+def plot_points(coord_name, connections):   # Ändra till coord_list istället för coord_name?
+    # plt.plot(coord_name[0, :], coord_name[1, :], 'or')
+    # a = np.array((connections[0, :]))
+    # b = np.array((connections[1, :]))
+    # print(np.column_stack((a, b)))
+    # line_segments = LineCollection((np.column_stack((a, b))))
+    # print(line_segments)
+    lines = []
+    line = []
     a = np.array((connections[0, :]))
     b = np.array((connections[1, :]))
-    print(np.column_stack((a, b)))
-    line_segments = LineCollection((np.column_stack((a, b))))
-    print(line_segments)
+    soize = np.size(a)
+    for i in np.arange(soize):
+        x0 = coord_name[0, int(a[i])]
+        y0 = coord_name[1, int(a[i])]
+        line.append((x0, y0))
+        x1 = coord_name[0, int(b[i])]
+        y1 = coord_name[1, int(b[i])]
+        line.append((x1, y1))
+        lines.append(line)
+        line = []
+    return lines
 
+
+# Uppgift 3.
 
 
 def distance(x0, x1, y0, y1):
-    dist = np.sqrt((x1-x0)**2 + (y1-y0)**2)
+    dist = np.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2)
     return dist
+
 
 def construct_graph_connections(coord_list, radius):
     x_coord = coord_list[0, :]
     y_coord = coord_list[1, :]
     points = np.empty([0, 0])
-    #print("points stil: ", points.reshape(0, 2))
+    # print("points stil: ", points.reshape(0, 2))
     real_dist = np.empty(0)
 
     for i in range(len(x_coord)):
-        for z in range(1+i, len(x_coord)):
+        for z in range(1 + i, len(x_coord)):
             dist = distance(x_coord[i], x_coord[z], y_coord[i], y_coord[z])
-            #print(dist, "Och z är = ", z, "Och i är = ", i)
+            # print(dist, "Och z är = ", z, "Och i är = ", i)
             if dist < radius:
                 points = np.append(points, [i, z])
-                #print("Print points: ", points)
+                # print("Print points: ", points)
                 real_dist = np.append(real_dist, dist)
-    #print(points)
-    points = points.reshape(int(len(points)/2), 2)      #Var försiktig med reshape!!!
+    # print(points)
+    points = points.reshape(int(len(points) / 2), 2)  # Var försiktig med reshape!!!
     points = points.transpose()
-    #print("hallå eller",points)
+    # print("hallå eller",points)
     real_dist = real_dist.reshape(1, int(len(real_dist)))
-    #print(real_dist)
+    # print(real_dist)
     return points, real_dist
 
 
+# Uppgift 4.
+
+
 def construct_graph(indices, distances):
-    M = int(np.max(indices[0, :])+1)
-    N = int(np.max(indices[1, :])+1)
-    #print(N, M)
+    M = int(np.max(indices[0, :]) + 1)
+    N = int(np.max(indices[1, :]) + 1)
+    # print(N, M)
     matrix = csr_matrix((distances[0, :], (indices[0, :], indices[1, :])), shape=(M, N))
     return matrix
 
@@ -82,20 +113,28 @@ def construct_graph(indices, distances):
 name = "SampleCoordinates.txt"
 
 coord = read_coordinate_file(name)
-#print(coord[0,:])
+# print(coord[0,:])
 
-#print(coord)
+# print(coord)
 
-#plot_points(coord)
-#plt.show()
+plot_points2(coord)
 
 points, dist = construct_graph_connections(coord, SAMPLE_RADIUS)
-#print(len(dist[0, :]))
-#print((dist[0, :]))
-#print(len(points[0, :]))
-#print(len(points[1, :]))
-#print(points)
+# print(len(dist[0, :]))
+# print((dist[0, :]))
+# print(len(points[0, :]))
+# print(len(points[1, :]))
+# print(points)
 csr = construct_graph(points, dist)
 print(type(points))
+print(csr.toarray())
 
-plot_points(coord, points)
+print(coord)
+lines = plot_points(coord, points)
+print(lines)
+line_segments = LineCollection(lines)
+fig = plt.figure(1)
+ax = fig.gca()
+ax.add_collection(line_segments)
+
+plt.show()
