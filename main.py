@@ -150,32 +150,25 @@ def shortest_path(graph, start, end, direction):
 def construct_fast_graph_connections(coord_list, radius):
     points = np.c_[coord[0, :], coord_list[1, :]]
     tree = spatial.cKDTree(points)
-    print(tree)
     x_coord = coord_list[0, :]
     y_coord = coord_list[1, :]
     t = time.time()
-    nearest_dist = cKDTree.query_ball_point(tree, points, radius)
-    print(nearest_dist)
     stuff = tree.query_ball_point(points, radius)
     print("Tid för fast ball point",time.time() - t)
     points = np.empty([0, 0])
     real_dist = np.empty([0])
     t = time.time()
 
-    for o in stuff:
-        print(o)
 
     for i in range(len(stuff)):
         for j in range(len(stuff[i])):
             if i != stuff[i][j]:
-                dist = distance(x_coord[i], x_coord[stuff[i][j]], y_coord[i], y_coord[stuff[i][j]])
+                #dist = distance(x_coord[i], x_coord[stuff[i][j]], y_coord[i], y_coord[stuff[i][j]])
                 points = np.append(points, (i, stuff[i][j]))
-                real_dist = np.append(real_dist, dist)
+                #real_dist = np.append(real_dist, dist)
     print("Loopen: ", time.time()-t)
     points = points.reshape(int(len(points) / 2), 2)  # Var försiktig med reshape!!!
     points = points.transpose()
-    #print(points)
-    #print(real_dist)
     return points, real_dist
 
 
