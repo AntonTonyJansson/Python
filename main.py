@@ -7,6 +7,7 @@ from matplotlib.collections import LineCollection
 import time
 from scipy.spatial import cKDTree
 from scipy import spatial
+import math as ma
 
 # CONSTANTS
 SAMPLE_RADIUS = 0.08
@@ -154,29 +155,41 @@ def construct_fast_graph_connections(coord_list, radius):
     y_coord = coord_list[1, :]
     t = time.time()
     stuff = tree.query_ball_point(points, radius)
-    print("Tid för fast ball point",time.time() - t)
-    points = np.empty([0, 0])
-    real_dist = np.empty([0])
+    print("Tid för fast ball point", time.time() - t)
+    points = []
+    real_dist = []
     t = time.time()
-
-
+    for i in range(len(stuff)):
+        x1 = x_coord[i]
+        y1 = y_coord[i]
+        for j in stuff[i]:
+            if j != i:
+                x2 = x_coord[j]
+                y2 = y_coord[j]
+                dist = ma.sqrt((x2-x1)**2 + (y2-y1)**2)
+                points.append([i, j])
+                real_dist.append(dist)
+    '''
     for i in range(len(stuff)):
         for j in range(len(stuff[i])):
             if i != stuff[i][j]:
                 #dist = distance(x_coord[i], x_coord[stuff[i][j]], y_coord[i], y_coord[stuff[i][j]])
                 points = np.append(points, (i, stuff[i][j]))
                 #real_dist = np.append(real_dist, dist)
+    '''
     print("Loopen: ", time.time()-t)
-    points = points.reshape(int(len(points) / 2), 2)  # Var försiktig med reshape!!!
+    points = np.array(points)
+    real_dist = np.array(real_dist)
+    #points = points.reshape(int(len(points) / 2), 2)  # Var försiktig med reshape!!!
     points = points.transpose()
     return points, real_dist
 
 
 # CITY
-name = "SampleCoordinates.txt"
-radius = SAMPLE_RADIUS
-start = SAMPLE_START
-end = SAMPLE_END
+name = "GermanyCities.txt"
+radius = GERMANY_RADIUS
+start = GERMANY_START
+end = GERMANY_END
 
 
 t = time.time()
@@ -186,7 +199,7 @@ print("The time it takes to read_coordinate_file: ", time.time() - t)
 
 
 t = time.time()
-points, dist = construct_graph_connections(coord, radius)
+#points, dist = construct_graph_connections(coord, radius)
 print("The time it takes to construct_graph_connections: ", time.time() - t)
 #print("Dist från 3: ", dist)
 #print("Points från 3: ", points)
@@ -211,8 +224,8 @@ print("The time it takes to calculate shortest_path: ", time.time() - t)
 
 
 t = time.time()
-plot_points(coord, points, predecesor)
+plot_points(coord, points_fast, predecesor)
 print("The time it takes to print: ", time.time() - t)
-#plot_points2(coord, points, predecesor)
+#print(points_fast)
 plt.show()
 
