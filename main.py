@@ -55,7 +55,7 @@ def plot_points2(coord_list, path):
         line.append((x1, y1))
         lines.append(line)
         line = []
-    line_segments = LineCollection(lines, linewidths=4.5, colors='r', zorder=3)
+    line_segments = LineCollection(lines, linewidths=3, colors='r', zorder=3)
     fig = plt.figure(1)
     ax = fig.gca()
     ax.set_aspect('equal')
@@ -63,7 +63,7 @@ def plot_points2(coord_list, path):
 
 
 def plot_points(coord_list, connections, path):
-    plt.plot(coord_list[0, :], coord_list[1, :], 'ob', markersize=1, zorder=2)
+    plt.plot(coord_list[0, :], coord_list[1, :], 'ob', markersize=0.2)
     lines = []
     line = []
     a = np.array((connections[0, :]))
@@ -78,7 +78,7 @@ def plot_points(coord_list, connections, path):
         line.append((x1, y1))
         lines.append(line)
         line = []
-    line_segments = LineCollection(lines, colors='g', zorder=1, linewidths=0.15)
+    line_segments = LineCollection(lines, colors='g', zorder=1, linewidths=0.2)
     fig = plt.figure(1)
     ax = fig.gca()
     ax.add_collection(line_segments)
@@ -167,10 +167,10 @@ def construct_fast_graph_connections(coord_list, radius):
 
 t_total = time.time()
 # User interface, choose city and fast or slow construct_graph
-name = "HungaryCities.txt"
-radius = HUNGARY_RADIUS
-start = HUNGARY_START
-end = HUNGARY_END
+name = "SampleCoordinates.txt"
+radius = SAMPLE_RADIUS
+start = SAMPLE_START
+end = SAMPLE_END
 fast_graph = True  # True if fast, False if slow
 
 
