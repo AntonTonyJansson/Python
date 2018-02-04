@@ -1,0 +1,7 @@
+The shortest distance:
+0.16446989718
+The cities: 
+0
+4
+3
+5

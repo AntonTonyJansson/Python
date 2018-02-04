@@ -6,7 +6,6 @@ from scipy.sparse.csgraph import dijkstra
 from matplotlib.collections import LineCollection
 import time
 from scipy.spatial import cKDTree
-from scipy import spatial
 import math as ma
 
 # CONSTANTS
@@ -26,10 +25,6 @@ GERMANY_END = 10584
 # Uppgift 1.
 
 np.set_printoptions(precision=4)
-
-
-def symmetrize(a):
-    return a + a.T -np.diag(a.diagonal())
 
 
 def read_coordinate_file(filename):
@@ -60,14 +55,15 @@ def plot_points2(coord_list, path):
         line.append((x1, y1))
         lines.append(line)
         line = []
-    line_segments = LineCollection(lines, linewidths=4.5, colors='r', zorder=3)
+    line_segments = LineCollection(lines, linewidths=3, colors='r', zorder=3)
     fig = plt.figure(1)
     ax = fig.gca()
+    ax.set_aspect('equal')
     ax.add_collection(line_segments)
 
 
 def plot_points(coord_list, connections, path):
-    plt.plot(coord_list[0, :], coord_list[1, :], 'ob', markersize=1, zorder=2)
+    plt.plot(coord_list[0, :], coord_list[1, :], 'ob', markersize=0.2)
     lines = []
     line = []
     a = np.array((connections[0, :]))
@@ -82,18 +78,14 @@ def plot_points(coord_list, connections, path):
         line.append((x1, y1))
         lines.append(line)
         line = []
-    line_segments = LineCollection(lines, colors='g', zorder=1, linewidths=0.15)
+    line_segments = LineCollection(lines, colors='g', zorder=1, linewidths=0.2)
     fig = plt.figure(1)
     ax = fig.gca()
     ax.add_collection(line_segments)
     plot_points2(coord_list, path)
 
 
-
-
 # Uppgift 3.
-
-
 def distance(x0, x1, y0, y1):
     dist = np.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2)
     return dist
@@ -104,7 +96,6 @@ def construct_graph_connections(coord_list, radius):
     y_coord = coord_list[1, :]
     points = []
     real_dist = []
-
     for i in range(len(x_coord)):
         for z in range(1 + i, len(x_coord)):
             dist = distance(x_coord[i], x_coord[z], y_coord[i], y_coord[z])
@@ -126,6 +117,13 @@ def construct_graph(indices, distances):
 
 
 def shortest_path(graph, start, end, direction):
+    """
+    :param graph: a csr graph
+    :param start: start node
+    :param end: end node
+    :param direction: if the graph is directed or not
+    :return: shortest distance and a list of predecessors
+    """
     pre_list = []
     shortest, pre_all = dijkstra(graph, directed=direction, indices=[start, end], return_predecessors=True)
     i = end
@@ -133,7 +131,6 @@ def shortest_path(graph, start, end, direction):
     while pre_all[0, i] != start:
         i = pre_all[0, i]
         pre_list.append(i)
-
     pre_list.append(start)
     pre_list.reverse()
     return shortest, pre_list
@@ -146,7 +143,6 @@ def construct_fast_graph_connections(coord_list, radius):
     y_coord = coord_list[1, :]
     t = time.time()
     stuff = tree.query_ball_point(points, radius)
-    #print("Tid för fast ball point", time.time() - t)
     points = []
     real_dist = []
     t = time.time()
@@ -155,7 +151,7 @@ def construct_fast_graph_connections(coord_list, radius):
         x1 = x_coord[i]
         y1 = y_coord[i]
         test.append(i)
-        #l3 = [x for x in stuff[i] if x not in test]
+        #l3 = [x for x in stuff[i] if x not in test]  # Used to shorten points, makes it non-directed
         for j in stuff[i]:
             if j != i:
                 x2 = x_coord[j]
@@ -163,8 +159,6 @@ def construct_fast_graph_connections(coord_list, radius):
                 dist = ma.sqrt((x2-x1)**2 + (y2-y1)**2)
                 points.append([i, j])
                 real_dist.append(dist)
-
-    #print("Loopen: ",time.time() - t)
     points = np.array(points)
     real_dist = np.array(real_dist)
     points = points.transpose()
@@ -172,53 +166,74 @@ def construct_fast_graph_connections(coord_list, radius):
 
 
 t_total = time.time()
-# CITY
+# User interface, choose city and fast or slow construct_graph
 name = "GermanyCities.txt"
 radius = GERMANY_RADIUS
 start = GERMANY_START
 end = GERMANY_END
+fast_graph = True  # True if fast, False if slow
 
 
 t = time.time()
 coord = read_coordinate_file(name)
 print("The time it takes to read_coordinate_file: ", time.time() - t)
-#print(coord)
 
-
-#t = time.time()
-#points, dist = construct_graph_connections(coord, radius)
-#print("The time it takes to construct_graph_connections: ", time.time() - t)
-#print("Dist från 3: ", dist)
-#print("Points från 3: ", points)
 
 t = time.time()
-points_fast, dist_fast = construct_fast_graph_connections(coord, radius)
+if fast_graph:
+    points, dist = construct_fast_graph_connections(coord, radius)
+    directed = True
+else:
+    points, dist = construct_graph_connections(coord, radius)
+    directed = False
 print("The time it takes to construct_fast_graph_connections: ", time.time() - t)
 
 t = time.time()
-csr = construct_graph(points_fast, dist_fast)
+csr = construct_graph(points, dist)
 print("The time it takes to construct_graph: ", time.time() - t)
 
 
-
-
-#print(csr)
 t = time.time()
-dist_matrix, predecesor = shortest_path(csr, start, end, True)
+dist_matrix, predecesor = shortest_path(csr, start, end, directed)
 print("The time it takes to calculate 6 and 7: ", time.time() - t)
-#print(dist_matrix[0, end])
-#print(predecesor)
-
 
 print("The total time excluding the plot task: ", time.time() - t_total)
 
 t = time.time()
-plot_points(coord, points_fast, predecesor)
+plot_points(coord, points, predecesor)
 print("The time it takes to plot_points: ", time.time() - t)
 
 print("The shortest distance is: ", dist_matrix[0, end])
-print("The shortest path is: ",predecesor)
+print("The shortest path is: ", predecesor)
 
 
 plt.show()
 
+# Save the result in files
+if name == "SampleCoordinates.txt":
+    file_result = open("SampleCoordinatesResult.txt", "w")
+    file_result.write("The shortest distance:\n")
+    file_result.write(str(dist_matrix[0, end]) + "\n")
+    file_result.write("The cities: \n")
+    for line in predecesor:
+        file_result.write(str(line) + "\n")
+    file_result.close()
+    print("SampleCoordinateResult.txt file written")
+elif name == "HungaryCities.txt":
+    file_result = open("HungaryCitiesResult.txt", "w")
+    file_result.write("The shortest distance:\n")
+    file_result.write(str(dist_matrix[0, end])+"\n")
+    file_result.write("The cities: \n")
+    for line in predecesor:
+        file_result.write(str(line)+"\n")
+    file_result.close()
+    print("HungaryCitiesResult.txt file written")
+elif name == "GermanyCities.txt":
+    file_result = open("GermanyCitiesResult.txt", "w")
+    file_result.write("The shortest distance:\n")
+    file_result.write(str(dist_matrix[0, end]) + "\n")
+    file_result.write("The cities: \n")
+    for line in predecesor:
+        file_result.write(str(line) + "\n")
+    file_result.close()
+    print("GermanyCitiesResult.txt file written")
