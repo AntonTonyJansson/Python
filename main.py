@@ -58,6 +58,7 @@ def plot_points2(coord_list, path):
     line_segments = LineCollection(lines, linewidths=4.5, colors='r', zorder=3)
     fig = plt.figure(1)
     ax = fig.gca()
+    ax.set_aspect('equal')
     ax.add_collection(line_segments)
 
 
@@ -166,10 +167,10 @@ def construct_fast_graph_connections(coord_list, radius):
 
 t_total = time.time()
 # User interface, choose city and fast or slow construct_graph
-name = "GermanyCities.txt"
-radius = GERMANY_RADIUS
-start = GERMANY_START
-end = GERMANY_END
+name = "HungaryCities.txt"
+radius = HUNGARY_RADIUS
+start = HUNGARY_START
+end = HUNGARY_END
 fast_graph = True  # True if fast, False if slow
 
 
@@ -187,29 +188,14 @@ else:
     directed = False
 print("The time it takes to construct_fast_graph_connections: ", time.time() - t)
 
-#t = time.time()
-#points, dist = construct_graph_connections(coord, radius)
-#print("The time it takes to construct_graph_connections: ", time.time() - t)
-
-
-#t = time.time()
-#points_fast, dist_fast = construct_fast_graph_connections(coord, radius)
-#print("The time it takes to construct_fast_graph_connections: ", time.time() - t)
-
 t = time.time()
 csr = construct_graph(points, dist)
 print("The time it takes to construct_graph: ", time.time() - t)
 
 
-
-
-#print(csr)
 t = time.time()
 dist_matrix, predecesor = shortest_path(csr, start, end, directed)
 print("The time it takes to calculate 6 and 7: ", time.time() - t)
-#print(dist_matrix[0, end])
-#print(predecesor)
-
 
 print("The total time excluding the plot task: ", time.time() - t_total)
 
