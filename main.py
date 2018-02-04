@@ -166,10 +166,10 @@ def construct_fast_graph_connections(coord_list, radius):
 
 t_total = time.time()
 # User interface, choose city and fast or slow construct_graph
-name = "HungaryCities.txt"
-radius = HUNGARY_RADIUS
-start = HUNGARY_START
-end = HUNGARY_END
+name = "GermanyCities.txt"
+radius = GERMANY_RADIUS
+start = GERMANY_START
+end = GERMANY_END
 fast_graph = True  # True if fast, False if slow
 
 
@@ -223,3 +223,31 @@ print("The shortest path is: ", predecesor)
 
 plt.show()
 
+# Save the result in files
+if name == "SampleCoordinates.txt":
+    file_result = open("SampleCoordinatesResult.txt", "w")
+    file_result.write("The shortest distance:\n")
+    file_result.write(str(dist_matrix[0, end]) + "\n")
+    file_result.write("The cities: \n")
+    for line in predecesor:
+        file_result.write(str(line) + "\n")
+    file_result.close()
+    print("SampleCoordinateResult.txt file written")
+elif name == "HungaryCities.txt":
+    file_result = open("HungaryCitiesResult.txt", "w")
+    file_result.write("The shortest distance:\n")
+    file_result.write(str(dist_matrix[0, end])+"\n")
+    file_result.write("The cities: \n")
+    for line in predecesor:
+        file_result.write(str(line)+"\n")
+    file_result.close()
+    print("HungaryCitiesResult.txt file written")
+elif name == "GermanyCities.txt":
+    file_result = open("GermanyCitiesResult.txt", "w")
+    file_result.write("The shortest distance:\n")
+    file_result.write(str(dist_matrix[0, end]) + "\n")
+    file_result.write("The cities: \n")
+    for line in predecesor:
+        file_result.write(str(line) + "\n")
+    file_result.close()
+    print("GermanyCitiesResult.txt file written")
