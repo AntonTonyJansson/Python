@@ -7,7 +7,6 @@ from scipy.sparse.csgraph import dijkstra
 from matplotlib.collections import LineCollection
 import time
 from scipy.spatial import cKDTree
-import math as ma
 
 # CONSTANTS
 SAMPLE_RADIUS = 0.08
@@ -49,6 +48,9 @@ def read_coordinate_file(filename):
 # Uppgift 2. och 5.
 
 def plot_points2(coord_list, path):
+    """
+    Plotting the shortest path between two cities.
+    """
     lines = []
     line = []
     for i in range(len(path) - 1):
@@ -68,6 +70,9 @@ def plot_points2(coord_list, path):
 
 
 def plot_points(coord_list, connections, path):
+    """
+    Plotting the points and lines between the cities.
+    """
     plt.plot(coord_list[0, :], coord_list[1, :], 'ob', markersize=0.2)
     lines = []
     line = []
@@ -104,7 +109,7 @@ def construct_graph_connections(coord_list, radius):
     for i, j in enumerate(x_coord):
         for k, l in enumerate(x_coord):
             dist = distance(j, l, y_coord[i], y_coord[k])
-            if dist < radius and dist != 0:
+            if dist < radius and j != l and y_coord[i] != y_coord[k]:
                 points.append([i, k])
                 real_dist.append(dist)
     points = np.array(points)
