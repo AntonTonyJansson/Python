@@ -191,10 +191,10 @@ def construct_fast_graph_connections(coord_list, radius):
 
 t_total = time.time()
 # User interface, choose city and fast or slow construct_graph
-name = "SampleCoordinates.txt"
-radius = SAMPLE_RADIUS
-start = SAMPLE_START
-end = SAMPLE_END
+name = "GermanyCities.txt"
+radius = GERMANY_RADIUS
+start = GERMANY_START
+end = GERMANY_END
 which_graph = True  # True if fast, False if slow
 
 
