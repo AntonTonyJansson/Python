@@ -111,7 +111,7 @@ def construct_graph_connections(coord_list, radius):
     for i, j in enumerate(x_coord):
         for k, l in enumerate(x_coord):
             dist = distance(j, l, y_coord[i], y_coord[k])
-            if dist < radius and j != l and y_coord[i] != y_coord[k]:  # if distance is within reach and not same city
+            if dist < radius and i != k:  # if distance is within reach and not same city
                 points.append([i, k])
                 real_dist.append(dist)
     points = np.array(points)
@@ -146,8 +146,8 @@ def shortest_path(graph, start, end):
 
     """
     pre_list = []
-    # indices indicates which nodes to start from
-    # return_predecessors indicates that dijkstra returns a predecessor list as well
+    # indices tells dijkstra that we only care about the path from node start
+    # return_predecessors tells dijkstra that we want the predecessors as well
     shortest, pre_all = dijkstra(graph, indices=start, return_predecessors=True)
     i = end
     pre_list.append(end)
