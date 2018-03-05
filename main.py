@@ -108,11 +108,11 @@ def construct_graph_connections(coord_list, radius):
     points = []
     real_dist = []
 
-    for i, j in enumerate(x_coord):
-        for k, l in enumerate(x_coord):
-            dist = distance(j, l, y_coord[i], y_coord[k])
-            if dist < radius and i != k:  # if distance is within reach and not same city
-                points.append([i, k])
+    for city_1, coord_x1 in enumerate(x_coord):
+        for city_2, coord_x2 in enumerate(x_coord):
+            dist = distance(coord_x1, coord_x2, y_coord[city_1], y_coord[city_2])
+            if dist < radius and city_1 != city_2:  # if distance is within reach and not same city
+                points.append([city_1, city_2])
                 real_dist.append(dist)
     points = np.array(points)
     points = points.transpose()
@@ -126,8 +126,7 @@ def construct_graph(indices, distances, N):
     """
     Makes a csr matrix which contains distances between the cities.
     """
-    matrix = csr_matrix((distances, (indices[0, :], indices[1, :])), shape=(N, N))
-    return matrix
+    return csr_matrix((distances, (indices[0, :], indices[1, :])), shape=(N, N))
 
 
 def shortest_path(graph, start, end):
