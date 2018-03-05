@@ -53,7 +53,7 @@ def plot_points2(coord_list, path):
     """
     lines = []
     line = []
-    for i in range(len(path) - 1):
+    for i in range(len(path) - 1):      # Create the lines between cities
         x0 = coord_list[0, path[i]]
         y0 = coord_list[1, path[i]]
         line.append((x0, y0))
@@ -62,7 +62,7 @@ def plot_points2(coord_list, path):
         line.append((x1, y1))
         lines.append(line)
         line = []
-    line_segments = LineCollection(lines, linewidths=3, colors='r', zorder=3)
+    line_segments = LineCollection(lines, linewidths=3, colors='r', zorder=3)   # Create a LineCollection with lines
     fig = plt.figure(1)
     ax = fig.gca()
     ax.set_aspect('equal')
@@ -73,12 +73,12 @@ def plot_points(coord_list, connections, path):
     """
     Plotting the points and lines between the cities.
     """
-    plt.plot(coord_list[0, :], coord_list[1, :], 'ob', markersize=0.2)
+    plt.plot(coord_list[0, :], coord_list[1, :], 'ob', markersize=0.2)  # plot the cities with markers
     lines = []
     line = []
     a = np.array((connections[0, :]))
     b = np.array((connections[1, :]))
-    for i in np.arange(a.size):
+    for i in np.arange(a.size):     # Create lines between cities
         x0 = coord_list[0, a[i]]
         y0 = coord_list[1, a[i]]
         line.append((x0, y0))
@@ -87,7 +87,7 @@ def plot_points(coord_list, connections, path):
         line.append((x1, y1))
         lines.append(line)
         line = []
-    line_segments = LineCollection(lines, colors='g', zorder=1, linewidths=0.2)
+    line_segments = LineCollection(lines, colors='g', zorder=1, linewidths=0.2)     # Create a LineCollection with lines
     fig = plt.figure(1)
     ax = fig.gca()
     ax.add_collection(line_segments)
@@ -96,8 +96,10 @@ def plot_points(coord_list, connections, path):
 
 # Uppgift 3.
 def distance(x0, x1, y0, y1):
-    dist = m.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2)
-    return dist
+    """
+    Calculates the distance between two cities with x, y coordinates
+    """
+    return m.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2)
 
 
 def construct_graph_connections(coord_list, radius):
@@ -109,7 +111,7 @@ def construct_graph_connections(coord_list, radius):
     for i, j in enumerate(x_coord):
         for k, l in enumerate(x_coord):
             dist = distance(j, l, y_coord[i], y_coord[k])
-            if dist < radius and j != l and y_coord[i] != y_coord[k]:
+            if dist < radius and j != l and y_coord[i] != y_coord[k]:  # if distance is within reach and not same city
                 points.append([i, k])
                 real_dist.append(dist)
     points = np.array(points)
@@ -121,6 +123,9 @@ def construct_graph_connections(coord_list, radius):
 
 
 def construct_graph(indices, distances, N):
+    """
+    Makes a csr matrix which contains distances between the cities.
+    """
     matrix = csr_matrix((distances, (indices[0, :], indices[1, :])), shape=(N, N))
     return matrix
 
@@ -173,14 +178,14 @@ def construct_fast_graph_connections(coord_list, radius):
                                                     # be reached from city index in reach
     points = []
     real_dist = []
-    for i in range(len(reach)):  # Loop through all lists in reach, to determine distances between each accessible city
+    for i, sublist in enumerate(reach):  # Loop through all lists in reach, to determine distances between each accessible city
         x1 = x_coord[i]
         y1 = y_coord[i]
-        for j in reach[i]:
+        for j in sublist:   # for all cities in sublist
             if j != i:
                 x2 = x_coord[j]
                 y2 = y_coord[j]
-                dist = distance(x1, x2, y1, y2)
+                dist = distance(x1, x2, y1, y2)     # Calculate distance
                 points.append([i, j])
                 real_dist.append(dist)
     points = np.array(points)
@@ -191,10 +196,10 @@ def construct_fast_graph_connections(coord_list, radius):
 
 t_total = time.time()
 # User interface, choose city and fast or slow construct_graph
-name = "GermanyCities.txt"
-radius = GERMANY_RADIUS
-start = GERMANY_START
-end = GERMANY_END
+name = "SampleCoordinates.txt"
+radius = SAMPLE_RADIUS
+start = SAMPLE_START
+end = SAMPLE_END
 which_graph = True  # True if fast, False if slow
 
 
@@ -212,24 +217,23 @@ print("The time it takes to construct_fast_graph_connections: ", time.time() - t
 
 N = coord[0, :].size   # Number of unique cities
 
-
 t = time.time()
 csr = construct_graph(points, dist, N)
 print("The time it takes to construct_graph: ", time.time() - t)
 
 
 t = time.time()
-dist_matrix, predecesor = shortest_path(csr, start, end)
+dist_matrix, predecessor = shortest_path(csr, start, end)
 print("The time it takes to calculate 6 and 7: ", time.time() - t)
 
 print("The total time excluding the plot task: ", time.time() - t_total)
 
 t = time.time()
-plot_points(coord, points, predecesor)
+plot_points(coord, points, predecessor)
 print("The time it takes to plot_points: ", time.time() - t)
 
 print("The shortest distance is: ", dist_matrix[end])
-print("The shortest path is: ", predecesor)
+print("The shortest path is: ", predecessor)
 
 
 plt.show()
@@ -240,7 +244,7 @@ if name == "SampleCoordinates.txt":
     file_result.write("The shortest distance:\n")
     file_result.write(str(dist_matrix[end]) + "\n")
     file_result.write("The cities: \n")
-    for line in predecesor:
+    for line in predecessor:
         file_result.write(str(line) + "\n")
     file_result.close()
     print("SampleCoordinateResult.txt file written")
@@ -249,7 +253,7 @@ elif name == "HungaryCities.txt":
     file_result.write("The shortest distance:\n")
     file_result.write(str(dist_matrix[end])+"\n")
     file_result.write("The cities: \n")
-    for line in predecesor:
+    for line in predecessor:
         file_result.write(str(line)+"\n")
     file_result.close()
     print("HungaryCitiesResult.txt file written")
@@ -258,7 +262,7 @@ elif name == "GermanyCities.txt":
     file_result.write("The shortest distance:\n")
     file_result.write(str(dist_matrix[end]) + "\n")
     file_result.write("The cities: \n")
-    for line in predecesor:
+    for line in predecessor:
         file_result.write(str(line) + "\n")
     file_result.close()
     print("GermanyCitiesResult.txt file written")
